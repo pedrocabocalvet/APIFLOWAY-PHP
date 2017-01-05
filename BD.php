@@ -14,7 +14,7 @@ class BD
 
     //cadena select all usuarios
     private $usuarios_all="SELECT *  FROM usuario";
-    private $usuarios_insert="INSERT INTO usuario ( nombre, apellidos, usuario, password, nif, direccion, poblacion, cp, email, puntuacion, horario) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    private $usuarios_insert="INSERT INTO usuario ( nombre, apellidos, usuario, password, nif, direccion, poblacion, cp, email, puntuacion, horario, foto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     private $usuarios_delete = "DELETE FROM usuario WHERE nombre = ";
 
 
@@ -71,16 +71,19 @@ class BD
   }
 
 
-  function insertUsuario($idusuario,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario){
+  function insertUsuario($idusuario,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario,$data){
     //Utilizamos sentecias preparadas
 
  // echo $idusuario . " " . $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $nif . " " . $direccion . " " . $poblacion . " " . $cp . " " . $email . " " . $puntuacion . " " . $horario ;    
 
-    
 
-
+    // aqui cargamos la query hecha antes
     $stmt = $this->mysqli->prepare($this->usuarios_insert);
-    $stmt->bind_param('sssssssssis',$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario);
+    // aqui le pasamos los valores a la query, el primer parametro es una letra que hace referencia al tipo de archivo que le estamos pasando cada letra corresponde a uno de los siguientes parametros por orden
+
+
+    $stmt->bind_param('sssssssssiss',$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario, $data);
+    
     $stmt->execute();
     $stmt->close();
 
@@ -97,7 +100,7 @@ class BD
 
 
 
-  function modificarUsuario($oldUser,$idusuario,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario){
+  function modificarUsuario($oldUser,$idusuario,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario, $data){
        //echo $oldUser . " " . $idusuario . " " . $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $nif . " " . $direccion . " " . $poblacion . " " . $cp . " " . $email . " " . $puntuacion . " " . $horario;
 
       if(isset($puntuacion) && !empty($puntuacion))
@@ -145,6 +148,12 @@ class BD
        if(isset($horario) && !empty($horario))
 
          mysqli_query($this->mysqli," UPDATE usuario SET horario= '" . $horario . "' WHERE usuario = '" .$oldUser ."'");
+
+       if(isset($data)){
+
+         mysqli_query($this->mysqli," UPDATE usuario SET foto= '" . $data . "' WHERE usuario = '" .$oldUser ."'");
+         echo "entro";
+        }
 
        printf("Filas afectadas por el Update: %d\n", $this->mysqli->affected_rows);
   }
