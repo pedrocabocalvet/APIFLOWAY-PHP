@@ -30,9 +30,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 					$bd = new BD();
 					$js = new jsonResponse();
 					$users = $bd->getUsuarios();
-					var_dump($users);
-					//echo $users[1];
-					die();
+					 $users;
 					$js->setData($users);
 					echo $js->json_response();
 					

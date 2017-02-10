@@ -8,12 +8,12 @@ class BD
     private $host = "localhost";
     private $bd="flowaydatabase";
     private $user = "root";
-    private $pw = "";
+    private $pw = "456uni9.L";
 
     private $mysqli;
 
     //cadena select all usuarios
-    private $usuarios_all="SELECT *  FROM usuario";
+    private $usuarios_all="SELECT * FROM usuario";
     private $usuarios_insert="INSERT INTO usuario ( nombre, apellidos, usuario, password, poblacion, cp, puntuacion, horario, foto) VALUES (?,?,?,?,?,?,?,?,?)";
     private $usuarios_delete = "DELETE FROM usuario WHERE nombre = ";
 
@@ -61,13 +61,23 @@ class BD
     $usuarios=[];
 
     /* consultas de seleccion que devuelven un conjunto de resultados */
+   mysql_query('SET CHARACTER SET utf8');
 
     if($result = mysqli_query($this->mysqli,$this->usuarios_all)){
-      while($usuario = mysqli_fetch_assoc($result)){
+
+	//file_put_contents("sal.txt", print_r($result, true));
+	
+	while ($usuario = mysqli_fetch_row($result)){
+		$usuarios[] = $usuario;	
+	}	
+
+
+      //while($usuario = mysqli_fetch_row($result)){
         // gracias a esta linea conseguimos parsear a json las ñ y los acentos
-        $usuarios[]=array_map('utf8_encode',$usuario);
-        
-      }
+        //$usuarios[]=array_map('utf8_encode',$usuario);
+	
+     // }
+	
       /*liberar el conjunto de resultados */
 
 
@@ -97,6 +107,9 @@ class BD
 
 
     // aqui cargamos la query hecha antes
+
+	//mysql_query("SET CHARACTER SET utf8");
+
     $stmt = $this->mysqli->prepare($this->usuarios_insert);
     // aqui le pasamos los valores a la query, el primer parametro es una letra que hace referencia al tipo de archivo que le estamos pasando cada letra corresponde a uno de los siguientes parametros por orden
                     
