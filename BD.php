@@ -14,7 +14,7 @@ class BD
 
     //cadena select all usuarios
     private $usuarios_all="SELECT *  FROM usuario";
-    private $usuarios_insert="INSERT INTO usuario ( nombre, apellidos, usuario, password, nif, direccion, poblacion, cp, email, puntuacion, horario, foto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+    private $usuarios_insert="INSERT INTO usuario ( nombre, apellidos, usuario, password, poblacion, cp, puntuacion, horario, foto) VALUES (?,?,?,?,?,?,?,?,?)";
     private $usuarios_delete = "DELETE FROM usuario WHERE nombre = ";
 
 
@@ -23,7 +23,7 @@ class BD
   function __construct()
   {
 
-    // este lo uso para el insert
+    // esto lo hacemos para realizar querys
     $this->mysqli = new mysqli($this->host, $this->user, $this->pw, $this->bd);
 
       if (mysqli_connect_errno()) {
@@ -31,6 +31,25 @@ class BD
           exit();
       }
   }
+
+  function comprobarUsuario($usuarioComprobar){
+
+      
+      $respuesta;
+
+      
+      $usuarios = $this->getUsuarios($usuarioComprobar);
+
+      $numero = count($usuarios);
+
+      if($numero==0)
+        $respuesta = "false";
+      else
+        $respuesta = "true";
+    
+      return "{existe:".$respuesta."}";
+  }
+
 
   function getUsuarios($whereUsuario=null){
 
@@ -70,20 +89,20 @@ class BD
 
   }
 
-
-  function insertUsuario($idusuario,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario,$data){
+                       // $nombre,$apellidos,$usuario,$password,$poblacion,$codigoPostal,$puntuacion,$chooseone, $data
+  function insertUsuario($nombre,$apellidos,$usuario,$password,$poblacion,$cp,$puntuacion,$horario,$data){
     //Utilizamos sentecias preparadas
 
- // echo $idusuario . " " . $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $nif . " " . $direccion . " " . $poblacion . " " . $cp . " " . $email . " " . $puntuacion . " " . $horario ;    
+  //echo  $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $poblacion . " " . $cp . " ". $puntuacion . " " . $horario ;    
 
 
     // aqui cargamos la query hecha antes
     $stmt = $this->mysqli->prepare($this->usuarios_insert);
     // aqui le pasamos los valores a la query, el primer parametro es una letra que hace referencia al tipo de archivo que le estamos pasando cada letra corresponde a uno de los siguientes parametros por orden
-
-
-    $stmt->bind_param('sssssssssiss',$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$cp,$email,$puntuacion,$horario, $data);
+                    
+    $stmt->bind_param('ssssssiss',$nombre,$apellidos,$usuario,$password,$poblacion,$cp,$puntuacion,$horario,$data);
     
+
     $stmt->execute();
     $stmt->close();
 
@@ -95,6 +114,19 @@ class BD
     }
     $this->mysqli->close();
 
+  }
+
+  function prueba($palabra,$palabra2){
+    echo "llego2 ".$palabra;
+     $prueba_insert="INSERT INTO prueba (nombre,apellidos) VALUES (?,?)";
+
+    $stmt = $this->mysqli->prepare($prueba_insert);
+     $stmt->bind_param('ss',$palabra,$palabra2);
+      $stmt->execute();
+    $stmt->close();
+
+    //echo "INSERT INTO prueba values ('".$palabra."');";
+    // mysqli_query($this->mysqli,"INSERT INTO prueba values ('".$palabra."'');");
   }
 
 

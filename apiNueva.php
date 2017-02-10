@@ -6,21 +6,38 @@ include "jsonResponse.php";
 // la super global de dentro del switch permite saber de que manera esta enviado la url, si con get, post, delete o put
 switch ($_SERVER['REQUEST_METHOD']) {
 	case 'GET':
-		if(isset($_GET["where"])){
-				$bd = new BD();
-				$js = new jsonResponse();
-				$users = $bd->getUsuarios($_GET["where"]);
-				$js->setData($users);
-				echo $js->json_response();
-				
+
+		if (isset($_GET["api_key"]) && $_GET["api_key"] == "HDRYsemQRQRPRT") {
+			
+			if(isset($_GET["where"])){
+					$bd = new BD();
+					$js = new jsonResponse();
+					$users = $bd->getUsuarios($_GET["where"]);
+					$js->setData($users);
+					echo $js->json_response();
+					
+			}elseif(isset($_GET["usuario"])){
+
+					$bd = new BD();
+					$js = new jsonResponse();
+					$hayUsuarios = $bd->comprobarUsuario($_GET["usuario"]);
+
+					
+
+					echo $hayUsuarios;
+
 			}else{
-				$bd = new BD();
-				$js = new jsonResponse();
-				$users = $bd->getUsuarios();
-				$js->setData($users);
-				echo $js->json_response();
-				
-			}
+					$bd = new BD();
+					$js = new jsonResponse();
+					$users = $bd->getUsuarios();
+					$js->setData($users);
+					echo $js->json_response();
+					
+				}
+		}else{
+			echo "fallo api key";
+		}
+
 		break;
 	
 	case 'PUT':
@@ -88,37 +105,41 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 	case 'POST':
 		//$id = $_POST["id"];
-		$id = 3;
+		//$id = 3;
+
+/*
+	$bd = new BD();
+	$bd->prueba($_POST["nombre"],$_POST["apellidos"]);
+
+*/
 
 		$nombre = $_POST["nombre"];
 		$apellidos = $_POST["apellidos"];
+
 		$usuario = $_POST["usuario"];
 		$password = $_POST["password"];	
-		$nif = $_POST["nif"];
-		$direccion = $_POST["direccion"];
+
 		$poblacion = $_POST["poblacion"];
 		$codigoPostal = $_POST["codigoPostal"];	
-		$email = $_POST["email"];
-		$puntuacion = $_POST["puntuacion"];
-		//$data = null;
-		
 
-		if(isset($_POST['chooseone']) && !empty($_POST['chooseone'])){
-			$chooseone = $_POST["chooseone"];
-		}else{
-			$chooseone = "manana";
-		}
+		$puntuacion = $_POST["puntuacion"];
+
+		$chooseone = $_POST["horario"];
+
+		
 
 		//$data = cogerFoto($_FILES["foto"]);
 		$data = "";
 		
 	
-		/*echo $id . " " . $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $nif . " " . $direccion . " " . $poblacion . " " . $codigoPostal . " " . $email . " " . $puntuacion . " " . $chooseone ;    */
+		//echo  $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $poblacion . " " . $codigoPostal . " "  . $puntuacion . " " . $chooseone ;    
 
 		
 
 		$bd = new BD();
-		$bd->insertUsuario($id,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$codigoPostal,$email,$puntuacion,$chooseone, $data);
+		$bd->insertUsuario($nombre,$apellidos,$usuario,$password,$poblacion,$codigoPostal,$puntuacion,$chooseone,$data);
+	
+
 	break;
 }
 
