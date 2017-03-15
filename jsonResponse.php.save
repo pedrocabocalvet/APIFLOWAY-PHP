@@ -18,7 +18,7 @@ class jsonResponse
       header('Content-Type: application/json');
       // mostramos el json
     
-      return json_encode($this->data, JSON_NUMERIC_CHECK);
+      return json_encode($this->data);
       
   }
 }

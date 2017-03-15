@@ -1,7 +1,7 @@
 <?php
 
-include "BD.php";
-include "jsonResponse.php";
+require_once("./BD.php");
+require_once("./jsonResponse.php");
 
 // la super global de dentro del switch permite saber de que manera esta enviado la url, si con get, post, delete o put
 switch ($_SERVER['REQUEST_METHOD']) {
@@ -10,12 +10,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		if (isset($_GET["api_key"]) && $_GET["api_key"] == "HDRYsemQRQRPRT") {
 			
 			if(isset($_GET["where"])){
-					$bd = new BD();
+
+                                        $bd = new BD();
 					$js = new jsonResponse();
-					$users = $bd->getUsuarios($_GET["where"]);
+					$users = $bd->getUsuarios($_GET["where"]); 
+
 					$js->setData($users);
 					echo $js->json_response();
-					
+			
+                        }elseif(isset($_GET["whereid"])){
+
+                                        $bd = new BD();
+                                        $js = new jsonResponse();
+                                        $user = $bd->getUsuarioId($_GET["whereid"]);
+                                       
+                                        $js->setData($user);
+                                        echo $js->json_response();
+
+		
 			}elseif(isset($_GET["usuario"])){
 
 					$bd = new BD();
@@ -26,15 +38,35 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 					echo $hayUsuarios;
 
-			}else{
+			}elseif(isset($_GET["radio"])){
+                                        
+                                        $conectado = $_GET["conectado"];
+                                        $conductor = $_GET["conductor"];
+                                        $longitud = $_GET["longitud"];
+                                        $latitud = $_GET["latitud"];
+                                        $radio = $_GET["radio"];
+
+                                        //echo $conectado . $conductor . $longitud . $latitud . $radio;
+                                        $bd = new BD();
+                                        $js = new jsonResponse();
+
+                                        $usuariosfiltrados = $bd->filtrarUsuarios($radio,$conductor,$conectado,$longitud,$latitud);
+                                        
+                                        //echo "vuelvo";
+
+                                        $js->setData($usuariosfiltrados);
+                                        echo $js->json_response();
+
+                        }else{
 					$bd = new BD();
 					$js = new jsonResponse();
 					$users = $bd->getUsuarios();
-					var_dump($users);
-					//echo $users[1];
-					die();
+					
+					
 					$js->setData($users);
+				
 					echo $js->json_response();
+					exit();
 					
 				}
 		}else{
@@ -44,48 +76,74 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		break;
 	
 	case 'PUT':
+
+           if(isset($_GET["api_key"]) && $_GET["api_key"] == "HDRYsemQRQRPRT"){
 	// este metodo lo que hace es guardar en $dadesRebudes el los parametros q vienen por url ya sea delete put post o get
 		parse_str(file_get_contents("php://input"),$dadesRebudes);
 		
 		if(isset($dadesRebudes["olduser"]) && !empty($dadesRebudes["olduser"])){
+                 
+                     if(isset($_GET["conectado"])){
+                            
+                        $conectado = $dadesRebudes["conectado"];
+                        $usuario = $dadesRebudes["olduser"];
+
+                        $bd = new BD();
+                        $bd->modificarConexionUsuario($conectado,$usuario);
+
+                     }else if(isset($_GET["conductor"])){
+                        
+                        $conductor = $dadesRebudes["conductor"];
+                        $usuario = $dadesRebudes["olduser"];
+
+                        $bd = new BD();
+                        $bd->modificarConductorUsuario($conductor,$usuario);
+
+                     }else if(isset($_GET["cambiarlocalizacion"])){
+
+                        $longitud = $dadesRebudes["longitud"];
+                        $latitud = $dadesRebudes["latitud"];
+                        $usuario = $dadesRebudes["olduser"];
+
+                        $bd = new BD();
+                        $bd->modificarLongitudLatitudUsuario($longitud, $latitud, $usuario);
+ 
+                     }else if(isset($_GET["puntuacion"])){
+
+                              $puntuacion = $dadesRebudes["puntuacion"];
+                              $usuario = $dadesRebudes["olduser"];
+                              
+                              $bd = new BD();
+                              $bd->incrementarPuntuacion($usuario,$puntuacion);
+
+                     }else{                 
 
 			$oldUser = $dadesRebudes["olduser"];
-
-			$id = "";
-
 			$nombre = $dadesRebudes["nombre"];
 			$apellidos = $dadesRebudes["apellidos"];
 			$usuario = $dadesRebudes["usuario"];
 			$password = $dadesRebudes["password"];	
-			$nif = $dadesRebudes["nif"];
-			$direccion = $dadesRebudes["direccion"];
 			$poblacion = $dadesRebudes["poblacion"];
 			$codigoPostal = $dadesRebudes["codigoPostal"];	
-			$email = $dadesRebudes["email"];
-			$puntuacion = $dadesRebudes["puntuacion"];
-
-			if(isset($dadesRebudes['chooseone']) && !empty($dadesRebudes['chooseone'])){
-				$chooseone = $dadesRebudes["chooseone"];
-			}else{
-				$chooseone = "";
-			}
+                        $horario = $dadesRebudes["horario"];
 
 			//$data = cogerFoto($_FILES["foto"]);
-			$data = "";
+			$data = $dadesRebudes["foto"];
+			
+                        $bd = new BD();
+                        $bd->modificarUsuario($oldUser,$nombre,$apellidos,$usuario,$password,$poblacion,$codigoPostal, $horario, $data);
 			
 
-			//echo $oldUser . " " . $id . " " . $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $nif . " " . $direccion . " " . $poblacion . " " . $codigoPostal . " " . $email . " " . $puntuacion . " " . $chooseone ; 
-
-
-
-			$bd = new BD();
-			$bd->modificarUsuario($oldUser, $id,$nombre,$apellidos,$usuario,$password,$nif,$direccion,$poblacion,$codigoPostal,$email,$puntuacion,$chooseone, $data);
-
+                   }
 		}
 		else{
 			
 			echo "tienes que escribir el usuario ha modificar" ;
 		}
+
+           }else{
+                echo "fallo api key";
+           }
 	break;
 
 	case 'DELETE':
@@ -110,11 +168,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		//$id = $_POST["id"];
 		//$id = 3;
 
-/*
-	$bd = new BD();
-	$bd->prueba($_POST["nombre"],$_POST["apellidos"]);
-
-*/
+            if(isset($_GET["api_key"]) && $_GET["api_key"]== "HDRYsemQRQRPRT"){
 
 		$nombre = $_POST["nombre"];
 		$apellidos = $_POST["apellidos"];
@@ -132,7 +186,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		
 
 		//$data = cogerFoto($_FILES["foto"]);
-		$data = "";
+		$data = $_POST["data"];
 		
 	
 		//echo  $nombre . " " . $apellidos . " " . $usuario . " " . $password . " " . $poblacion . " " . $codigoPostal . " "  . $puntuacion . " " . $chooseone ;    
@@ -141,7 +195,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 		$bd = new BD();
 		$bd->insertUsuario($nombre,$apellidos,$usuario,$password,$poblacion,$codigoPostal,$puntuacion,$chooseone,$data);
-	
+	   }else{
+		echo "fallo api key";
+           }
 
 	break;
 }
