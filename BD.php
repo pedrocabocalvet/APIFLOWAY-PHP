@@ -67,8 +67,9 @@ class BD
 
 	//file_put_contents("sal.txt", print_r($result, true));
 	
-	while ($usuario = mysqli_fetch_row($result)){
+	while ($usuario = mysqli_fetch_assoc($result)){
 		$usuarios[] = $usuario;	
+
 	}	
 
 
@@ -108,7 +109,7 @@ class BD
 
     // aqui cargamos la query hecha antes
 
-	//mysql_query("SET CHARACTER SET utf8");
+	mysql_query("SET CHARACTER SET utf8");
 
     $stmt = $this->mysqli->prepare($this->usuarios_insert);
     // aqui le pasamos los valores a la query, el primer parametro es una letra que hace referencia al tipo de archivo que le estamos pasando cada letra corresponde a uno de los siguientes parametros por orden
